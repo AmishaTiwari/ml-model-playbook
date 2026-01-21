@@ -3,7 +3,7 @@
 **When to use:**
 - Data has non-linear relationships and feature interactions, and we want strong performance on tabular data with minimal feature engineering
 - When we want a model that works well without feature scaling and can handle mixed data types
-- It is a strong default model when single trees overfit because it's robust to noise because ensembling many trees reduces variance and improves generalization
+- It is a strong default model when single trees overfit because ensembling many trees reduces variance, making it robust to noise and improving generalization
 
 **When not to use:**
 - When the data is extremely high-dimensional and sparse
@@ -33,7 +33,7 @@ Independent and identically distributed (i.i.d.) means:
         - Time series (today depends on yesterday)
         - User sessions (multiple rows from same user)
         - Grouped data (multiple records from same hospital, same customer, etc.)
-    - If independence is violated, the model still trains, but generalization breaks in real deployment
+    - If independence is violated, the model may show optimistic validation performance but generalizes poorly in deployment
 2. Identically distributed:
     - All samples should come from the same underlying data distribution which means:
         - Train and test data should represent the same population
@@ -69,14 +69,14 @@ The key hyperparameters of Random Forest control variance reduction and individu
 
 For classification trees/RFs, I usually keep outliers unless they are errors, because splits depend on order, not magnitude.If outliers represent real but rare behavior, I usually keep them. If they are due to data issues like wrong units, typos, or impossible values, I remove or fix them
 
-For regression trees/RFs, I usually handle outliers, because trees predict by averaging and extreme values can skew predictions
+For regression trees/RFs, I usually handle outliers, because trees predict by averaging and extreme values can skew predictions. This is why winsorization or clipping is often used for regression trees
 
 Extreme outliers can be detected using:
 - Domain rules (e.g., negative age)
 - Statistical checks like IQR, percentile cuts (e.g., above 99.9th percentile)
 - Visual tools like boxplots and histograms
 
-## Q10. Suitable metrics
+## Q10. Suitable Metrics for Random Forest
 
 - For classification:
     - Suitable metrics include Precision, Recall, and F1-score depending on business costs, 
@@ -86,14 +86,49 @@ Extreme outliers can be detected using:
 - For regression:
     - Common metrics are MSE, RMSE, and MAE, which measure prediction error magnitude
 
-Q10: Failure
+## Q11. Failure Modes of Random Forest
 
-- Random Forests fail when the data is high-dimensional and sparse, where its difficult 
-for the individual DTs to find meaningful splits
-- They perform poorly on heavily imbalanced data without class weighting
+- Random Forest performs poorly on very high-dimensional and sparse data where meaningful splits are hard to find
+- It also struggles with heavily imbalanced datasets without class weighting or resampling
+- In regression, it cannot extrapolate beyond the range of the training targets
+- Additionally, Random Forests can become heavy in memory and slow at inference when many trees are used, which makes them unsuitable for low-latency or resource-constrained environments
 
-Q11: What to try next
+## Q12. What to try next
 
-1. First, I would tune RF hyperparameters 
-2. If non-tree models are needed, I would try kernel SVMs for small datasets with strong non-linearity, 
-and neural networks for very large and highly complex problems
+1. First, I would tune Random Forest hyperparameters like number of trees, max depth, max features, and min samples per leaf. I would also check class imbalance handling and feature quality
+2. If RF still underperforms, the next step is usually Gradient Boosting models like XGBoost, LightGBM, or CatBoost, which can capture more complex patterns and reduce bias
+3. If non-tree models are needed, I would try kernel SVMs for small datasets with strong non-linearity, and neural networks for very large and highly complex problems
+
+## Q13. What is Out-of-Bag (OOB) validation in Random Forest?
+
+Out-of-Bag validation is an internal validation method in Random Forest that uses the samples not selected in a tree’s bootstrap sample as its validation set. Since each tree is trained on about 63% of the data, the remaining 37% can be used to estimate generalization error without a separate validation split
+
+## Q14. Why is OOB validation useful?
+
+OOB validation provides an unbiased estimate of model performance without needing a separate validation set or cross-validation. It saves data, reduces training cost, and is especially useful when data is limited
+
+However, OOB works well when trees are sufficiently uncorrelated, otherwise its estimate can be slightly optimistic
+
+## Q15. Why OOB works well when trees are sufficiently uncorrelated?
+
+OOB validation assumes trees are weakly correlated. If trees are highly correlated, then even the OOB trees behave similarly to the trees that saw the sample, which makes the OOB error slightly optimistic compared to true generalization error
+
+Random Forest usually avoids correlation and keep OOB reliable by using
+- Bootstrapping (different samples per tree)
+- Random feature selection at each split
+
+But if
+- `max_features` is too large (almost all features used)
+- Trees are very deep and similar
+- Dataset is small
+
+then trees become more correlated leading to the OOB error slightly optimistic compared to true generalization error
+
+## Q16. How is OOB error calculated in Random Forest?
+
+- Each tree in a Random Forest is trained on a bootstrap sample, so about 37% of the data is left out for that tree and becomes its Out-of-Bag (OOB) set
+- For each data point x_i, we collect predictions only from the trees that did not see x_i during training. These trees form the OOB ensemble for that point
+- The predictions are then aggregated:
+    - For classification: majority voting
+    - For regression: average prediction
+- The error is computed for each point using its OOB prediction, and the final OOB error is obtained by averaging over all data points 

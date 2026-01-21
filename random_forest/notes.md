@@ -98,3 +98,37 @@ Extreme outliers can be detected using:
 1. First, I would tune Random Forest hyperparameters like number of trees, max depth, max features, and min samples per leaf. I would also check class imbalance handling and feature quality
 2. If RF still underperforms, the next step is usually Gradient Boosting models like XGBoost, LightGBM, or CatBoost, which can capture more complex patterns and reduce bias
 3. If non-tree models are needed, I would try kernel SVMs for small datasets with strong non-linearity, and neural networks for very large and highly complex problems
+
+## Q13. What is Out-of-Bag (OOB) validation in Random Forest?
+
+Out-of-Bag validation is an internal validation method in Random Forest that uses the samples not selected in a tree’s bootstrap sample as its validation set. Since each tree is trained on about 63% of the data, the remaining ~37% can be used to estimate generalization error without requiring a separate validation split
+
+## Q14. Why is OOB validation useful?
+
+OOB validation provides an unbiased estimate of model performance without needing a separate validation set or cross-validation. It saves data, reduces training cost, and is especially useful when the dataset is limited
+
+However, OOB works well only when trees are sufficiently uncorrelated, otherwise its estimate can be slightly optimistic
+
+## Q15. Why does OOB work well only when trees are sufficiently uncorrelated?
+
+OOB validation assumes trees are weakly correlated. If trees are highly correlated, then even the OOB trees behave very similarly to the trees that saw the sample. This makes OOB predictions slightly “contaminated” and leads to an optimistic estimate of generalization performance
+
+Random Forest usually avoids correlation and keep OOB reliable using
+- Bootstrapping (different samples per tree)
+- Random feature selection at each split
+
+But if
+- `max_features` is too large (almost all features used)
+- Trees are very deep and structurally similar
+- Dataset is small
+
+then trees become more correlated, and the OOB error can be slightly lower than the true test error
+
+## Q16. How is OOB error calculated in Random Forest?
+
+- Each tree in a Random Forest is trained on a bootstrap sample, so about 37% of the data is left out and becomes its Out-of-Bag (OOB) set
+- For each data point x_i, we collect predictions only from the trees that did not see x_i during training. These trees form the OOB ensemble for that point
+- The predictions are then aggregated:
+    - For classification: majority voting
+    - For regression: average prediction
+- The error is computed for each point using its OOB prediction, and the final OOB error is obtained by averaging over all data points 
