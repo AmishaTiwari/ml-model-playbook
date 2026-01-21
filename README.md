@@ -1,20 +1,30 @@
 # ML Model Playbook
 
-This repository contains minimal, focused implementations of core Machine Learning models.
+This repository is a structured playbook for building, understanding, and applying core Machine Learning models and concepts.
 
-Each model is structured to answer these questions:
-- When to use / when not
-- Core intuition
-- Loss function
-- Optimization method
-- Assumptions
-- Bias vs variance
-- Key hyperparameters
-- Data requirements
-- Suitable metrics
-- Failure modes
-- What to try next
+It contains:
+
+1. Model implementations:
+   - Logistic Regression
+   - Decision Tree
+   - Random Forest
+   - Gradient Boosting
+   - XGBoost
+
+2. Core ML concepts:
+   - Evaluation metrics
+   - Feature engineering
+   - ML pipelines and data leakage prevention
 
 Each folder contains:
-- One Jupyter notebook: model implementation + small experiments
-- One notes.md: crisp answers to the above questions
+- A Jupyter notebook with minimal, clean experiments
+- A notes.md file with concise explanations:
+  - When to use a method
+  - Why it works
+  - Assumptions and limitations
+  - Failure modes and tradeoffs
+
+The goal of this repository is to:
+- Build strong modeling intuition
+- Practice industry-grade ML workflows
+- Serve as a reference for real-world ML problem solving
