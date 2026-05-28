@@ -388,3 +388,365 @@ This demonstrates how strong ranking quality can still produce poor Precision at
   - whether the focus is model comparison or deployment behavior
 
 ---
+
+## Calibration and Probability Reliability
+
+### Q19. What does a predicted probability actually mean?
+
+- Many machine learning models produce probability estimates rather than direct class predictions
+- For example:
+  - a prediction probability of `0.80` means the model estimates approximately an 80% likelihood that the sample belongs to the positive class
+
+- Ideally, predicted probabilities should reflect real-world outcome frequencies
+- For example:
+  - among all samples predicted with probability `0.80`
+  - approximately 80% should actually belong to the positive class
+
+- This idea is known as:
+  - probability reliability
+  - or calibration quality
+
+- Reliable probabilities are important for:
+  - threshold selection
+  - ranking
+  - risk estimation
+  - business decision-making
+
+- A model may achieve strong Accuracy or ROC-AUC while still producing unreliable probabilities
+- Therefore:
+  - good ranking quality does not always guarantee trustworthy probability estimates
+
+---
+
+### Q20. What is calibration in machine learning?
+
+- Calibration measures how well predicted probabilities match actual real-world outcomes
+- A well-calibrated model produces probabilities that reflect true outcome frequencies
+- For example:
+  - among all samples predicted with probability `0.70`
+  - approximately `70%` should actually belong to the positive class
+
+- Calibration evaluates probability reliability rather than ranking quality
+- A model may therefore:
+  - rank samples correctly
+  - achieve strong ROC-AUC
+  - but still produce poorly calibrated probabilities
+
+**Example**
+
+| Customer | Actual Label | Predicted Probability |
+|---|---|---|
+| A | 1 | 0.99 |
+| B | 1 | 0.98 |
+| C | 0 | 0.97 |
+| D | 0 | 0.96 |
+
+Here:
+- positive samples still receive higher scores than negative samples
+- therefore ranking quality and ROC-AUC remain strong
+
+However:
+- probabilities indicate near certainty (`0.99`, `0.98`, etc.)
+- but several predictions are still incorrect despite extremely high confidence
+
+So:
+- ranking is good
+- calibration is poor
+
+- Calibration becomes especially important in systems where probabilities influence:
+  - risk estimation
+  - medical decisions
+  - financial decisions
+  - business policy
+  - confidence-based automation
+
+- Poor calibration can make model confidence misleading, even when overall classification performance appears strong
+
+---
+
+### Q21. Why can a model achieve high Accuracy or ROC-AUC but still have poor calibration?
+
+- Accuracy and ROC-AUC primarily evaluate:
+  - classification correctness
+  - ranking quality
+
+  rather than probability reliability
+
+- A model may therefore:
+  - correctly separate positive and negative samples
+  - achieve strong ROC-AUC
+  - but still produce unreliable probability estimates
+
+- For example:
+  - a model may predict probabilities near `0.95`
+  - even though the actual outcome frequency is much lower
+
+- In such cases:
+  - predictions may appear highly confident
+  - but confidence reliability becomes misleading
+
+- This becomes especially important in systems where probabilities directly influence:
+  - medical risk estimation
+  - fraud risk scoring
+  - loan approval decisions
+  - automated business policies
+
+---
+
+### Q22. Why are overconfident predictions and high-confidence mistakes dangerous in machine learning systems?
+
+- Overconfident predictions occur when the model assigns very high probabilities to predictions that are actually uncertain or incorrect
+- For example:
+  - a model may predict `0.99`
+  - even though similar predictions are correct far less often
+
+- High-confidence mistakes are especially dangerous because:
+  - uncertainty is expected in machine learning systems
+  - but confidently wrong predictions may cause incorrect decisions to be trusted too strongly
+
+- For example:
+  - a medical diagnosis system may confidently predict that a patient is healthy
+  - even though the patient actually has the disease
+
+- In such cases:
+  - the incorrect prediction itself is harmful
+  - but the high confidence may also discourage further review or verification
+
+- Overconfidence often indicates:
+  - poor calibration
+  - unreliable probability estimates
+  - excessive model confidence
+
+- Therefore, calibration analysis is important even when overall Accuracy or ROC-AUC appears strong
+
+---
+
+### Q23. What is a calibration curve (reliability diagram)?
+
+- A calibration curve compares:
+  - predicted probabilities
+  - against actual observed outcome frequencies
+
+- It helps visualize whether predicted probabilities are reliable
+
+- In a perfectly calibrated model:
+  - predictions near `0.80`
+  - should correspond to approximately 80% actual positive outcomes
+
+- Calibration curves are often plotted by:
+  - grouping predictions into probability bins
+  - then comparing predicted confidence with actual outcome frequency in each bin
+
+- A perfectly calibrated model produces points close to the diagonal line:
+  - predicted probability = actual probability
+
+- If the curve deviates significantly from the diagonal:
+  - the model may be overconfident
+  - or underconfident
+
+- Calibration curves therefore help evaluate probability reliability beyond Accuracy or ROC-AUC alone
+
+---
+
+### Q24. What is Brier Score and what does it measure?
+
+- Brier Score measures the difference between:
+  - predicted probabilities
+  - and actual outcomes
+
+- It is computed as:
+
+  `Brier Score = (1/N) * Σ (p_i - y_i)^2`
+
+Where:
+- `p_i` = predicted probability
+- `y_i` = actual label (`0` or `1`)
+- `N` = total number of samples
+
+- Lower Brier Scores indicate better probability estimates
+
+- Brier Score penalizes:
+  - incorrect predictions
+  - poorly calibrated confidence estimates
+
+- For example:
+  - predicting `0.99` for an incorrect prediction produces a much larger penalty
+  - than predicting `0.55` for the same mistake
+
+- Unlike Accuracy or ROC-AUC, Brier Score directly evaluates probability quality rather than only ranking or classification performance
+
+---
+
+### Q25. What is log-loss and why does it penalize overconfidence strongly?
+
+- Log-loss measures how well predicted probabilities align with actual outcomes
+
+- It is computed as:
+
+  `Log-Loss = -(1/N) * Σ [y_i log(p_i) + (1 - y_i) log(1 - p_i)]`
+
+Where:
+- `p_i` = predicted probability
+- `y_i` = actual label (`0` or `1`)
+- `N` = total number of samples
+
+- Lower log-loss values indicate better probability predictions
+
+- Log-loss heavily penalizes confident incorrect predictions
+
+- For example:
+  - predicting `0.99` for an incorrect prediction produces a very large penalty
+  - while predicting `0.60` for the same mistake produces a much smaller penalty
+
+- This happens because log-loss increases sharply when the model becomes confidently wrong
+
+- Unlike Accuracy or ROC-AUC, log-loss directly evaluates:
+  - prediction correctness
+  - probability reliability
+  - confidence calibration
+
+- In practice:
+  - log-loss is often useful for model optimization because it strongly penalizes confident incorrect predictions
+  - while Brier Score is often preferred for evaluating overall probability calibration stability
+
+---
+
+### Q26. When should calibration improvement techniques be used?
+
+- Calibration improvement techniques are useful when predicted probabilities are unreliable even though ranking or classification performance appears strong
+- For example:
+  - a model may consistently predict probabilities near `0.95`
+  - even though the actual success rate is much lower
+
+- In such cases:
+  - ROC-AUC or Accuracy may still remain strong
+  - but probability estimates become misleading
+
+- Calibration improvement methods attempt to adjust predicted probabilities so they better reflect real-world outcome frequencies
+
+- Common techniques include:
+  - Platt Scaling
+  - Isotonic Regression
+
+- Calibration improvement becomes especially important in systems where probabilities directly influence:
+  - risk estimation
+  - automated decisions
+  - business policy
+  - confidence-based actions
+
+- However, calibration improvement does not directly solve:
+  - poor ranking quality
+  - weak predictive features
+  - underlying model limitations
+
+- Therefore, calibration techniques are useful only when the main problem is unreliable probabilities rather than poor model ranking or weak predictive signal
+
+---
+
+## Error Analysis and Confidence Interpretation
+
+### Q27. Why is error analysis important in machine learning evaluation?
+
+- Aggregate metrics such as Accuracy or ROC-AUC summarize overall model performance but do not explain why the model fails
+
+- Error analysis helps identify:
+  - systematic mistakes
+  - difficult prediction regions
+  - overlapping classes
+  - unreliable confidence behavior
+
+- Analyzing False Positives and False Negatives separately often reveals important operational and business risks
+
+- Error analysis may show that the main issue is:
+  - threshold selection
+  - poor calibration
+  - insufficient features
+  - class overlap
+  - or weak model learning
+
+- Therefore, error analysis helps move machine learning evaluation from:
+  - metric reporting
+  - to failure diagnosis
+  - targeted model improvement
+  - practical decision-making
+
+---
+
+### Q28. Why are False Positives and False Negatives often analyzed separately?
+
+- False Positives and False Negatives may produce very different operational and business consequences
+
+- False Positives occur when:
+  - negative samples are incorrectly predicted as positive
+
+- False Negatives occur when:
+  - positive samples are incorrectly predicted as negative
+
+- Depending on the application:
+  - False Positives may increase unnecessary actions or operational cost
+  - False Negatives may miss important positive cases or business opportunities
+
+- For example:
+  - in fraud detection, False Positives may block legitimate transactions, while False Negatives may allow fraud to pass undetected
+  - in medical diagnosis, False Positives may trigger unnecessary tests, while False Negatives may miss actual disease cases
+
+- Analyzing these errors separately helps identify:
+  - which mistake type is more harmful
+  - whether threshold adjustment is needed
+  - whether business objectives are aligned with model behavior
+
+- Therefore, practical ML evaluation often focuses not only on overall accuracy, but also on understanding the distribution and impact of different error types
+
+---
+
+### Q29. Why can two models achieve similar overall metrics but fail in very different ways?
+
+- Aggregate metrics such as Accuracy, ROC-AUC, or F1-score summarize overall performance but may hide important differences in model behavior
+- Two models may achieve similar overall scores while producing:
+  - different types of errors
+  - different confidence behavior
+  - different operational risks
+
+- For example:
+  - one model may produce many low-confidence mistakes
+  - while another produces fewer but highly confident incorrect predictions
+
+- Similarly:
+  - one model may generate more False Positives
+  - while another generates more False Negatives
+
+- Even when overall metrics appear similar, deployment behavior and business impact may differ significantly
+- Therefore, practical model evaluation requires:
+  - error analysis
+  - confidence analysis
+  - threshold analysis
+  - business-context interpretation
+
+  rather than relying only on aggregate metrics
+
+---
+
+### Q30. Why is confidence analysis useful in machine learning evaluation?
+
+- Confidence analysis studies how certain the model is about its predictions
+- It helps identify:
+  - uncertain predictions
+  - overconfident mistakes
+  - unreliable probability behavior
+
+- Two models may achieve similar Accuracy or ROC-AUC while producing very different confidence patterns
+
+- For example:
+  - one model may produce mostly low-confidence uncertain predictions near `0.55`
+  - while another produces highly confident incorrect predictions near `0.99`
+
+- High-confidence mistakes are often more operationally concerning because incorrect predictions may be trusted too strongly
+
+- Therefore, confidence analysis helps evaluate:
+  - probability reliability
+  - operational trustworthiness
+  - confidence-based decision quality
+
+  beyond overall classification metrics alone
+
+---
