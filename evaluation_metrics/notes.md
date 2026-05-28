@@ -750,3 +750,238 @@ Where:
   beyond overall classification metrics alone
 
 ---
+
+## Practical Model Improvement and Failure Diagnosis
+
+### Q31. Why is identifying the actual failure mode important before improving a model?
+
+- Different model problems require very different improvement strategies
+- For example:
+  - poor ranking quality may require better models or richer features
+  - poor calibration may require probability calibration techniques
+  - poor threshold behavior may require threshold tuning
+  - overlapping classes may require additional data or better features
+
+- Therefore, improving a model without understanding the actual failure mode may lead to unnecessary complexity or ineffective changes
+- For example:
+  - switching to a more complex model may not help if the real issue is incorrect threshold selection or weak predictive features
+
+- Practical ML evaluation therefore focuses not only on:
+  - measuring performance
+  - but also diagnosing why the model fails
+
+- This helps guide:
+  - targeted model improvement
+  - better deployment decisions
+  - more effective business outcomes
+
+---
+
+### Q32. Why is threshold tuning often the first practical improvement step in machine learning systems?
+
+- Threshold tuning changes how predicted probabilities are converted into final decisions without retraining the underlying model
+
+- It is often the cheapest and fastest improvement strategy because:
+  - no new data is required
+  - no retraining is required
+  - deployment behavior can change immediately
+
+- Threshold tuning is especially useful when:
+  - ranking quality is already strong
+  - ROC-AUC is reasonable
+  - but Precision and Recall tradeoffs are not aligned with business objectives
+
+- Lowering the threshold may improve Recall and capture more positive cases, while raising the threshold may improve Precision and reduce False Positives
+- For example:
+  - in fraud detection, lowering the threshold may detect more fraudulent transactions
+  - even if it also increases the number of legitimate transactions flagged for review
+
+- In many practical systems, the main issue is:
+  - operating policy
+  - rather than catastrophic model failure
+
+- Therefore, threshold tuning is often explored before:
+  - switching models
+  - adding complexity
+  - or retraining the entire system
+
+- This is an important practical ML insight because improving deployment behavior does not always require improving the underlying model itself
+
+---
+
+### Q33. Why are better features often more important than more complex models?
+
+- Machine learning models can only learn patterns that are present in the available features
+- If important predictive information is missing:
+  - even very complex models may struggle to perform well
+
+- Weak or limited features may cause:
+  - overlapping classes
+  - unreliable predictions
+  - poor generalization
+  - unstable confidence behavior
+
+- In many practical systems, improving feature quality often produces larger gains than simply switching to a more complex algorithm
+- For example:
+  - in customer purchase prediction, behavioral features such as browsing activity or purchase history may be far more informative than only age or salary
+
+- Therefore, feature engineering and better data representation are often more valuable than increasing model complexity alone
+- This is an important practical ML insight because:
+  - better features improve the underlying predictive signal
+  - while more complex models mainly learn patterns from the existing signal
+
+---
+
+### Q34. Why is switching to a more complex model not always the best first solution?
+
+- More complex models do not automatically solve all machine learning problems
+- If the main issue is:
+  - poor threshold selection
+  - weak features
+  - poor calibration
+  - insufficient data
+  - or unclear business objectives
+
+  then increasing model complexity may provide little real improvement
+
+- In some cases, complex models may:
+  - increase overfitting risk
+  - reduce interpretability
+  - increase deployment complexity
+  - make debugging more difficult
+
+- Practical ML improvement therefore often follows a progression:
+  - understand failure modes
+  - improve thresholds
+  - improve features and data quality
+  - then increase model complexity only if necessary
+
+- For example:
+  - switching from Logistic Regression to XGBoost may not help much if the available features contain very limited predictive signal
+
+- This is an important practical ML insight because complex models cannot create information that is missing from the data itself
+
+---
+
+### Q35. How can we identify whether a model needs better thresholds, better features, more data, or a more complex model?
+
+- Different failure patterns often suggest different improvement strategies
+- For example:
+  - strong ROC-AUC but poor Precision or Recall tradeoffs may indicate threshold adjustment is needed
+  - good ranking performance but unreliable probabilities may indicate calibration problems
+  - overlapping classes, unstable predictions, or high-confidence mistakes may indicate weak or insufficient features
+  - poor generalization across datasets may indicate insufficient data or overfitting
+  - consistently weak ranking quality even after feature improvement may indicate the current model cannot capture the underlying relationships effectively
+
+- In some cases:
+  - simpler models may underfit complex nonlinear relationships
+  - making nonlinear or ensemble models more appropriate
+
+- Therefore, practical ML improvement usually begins with:
+  - diagnosing failure patterns
+  - understanding business objectives
+  - analyzing model behavior
+
+  before increasing model complexity
+
+- This is an important practical ML insight because different problems require very different solutions
+
+---
+
+### Q36. Why are business objectives important when improving machine learning systems?
+
+- Machine learning models are ultimately optimized to support business or operational goals rather than maximizing metrics alone
+- Different business objectives may require very different model behavior
+- For example:
+  - fraud detection systems may prioritize high Recall to avoid missing fraud cases
+  - marketing systems may tolerate more False Positives to capture more potential customers
+  - medical diagnosis systems may prioritize minimizing dangerous False Negatives
+
+- As a result:
+  - the same model may be considered successful in one application
+  - but unacceptable in another
+
+- Business objectives often influence:
+  - threshold selection
+  - Precision-Recall tradeoffs
+  - acceptable error types
+  - operational policies
+  - model evaluation criteria
+
+- Therefore, practical ML improvement requires aligning:
+  - model behavior
+  - business priorities
+  - deployment constraints
+
+  rather than optimizing metrics in isolation
+
+- This is an important practical ML insight because the best statistical model is not always the best business solution
+
+---
+
+### Q37. What is a common practical workflow for improving machine learning systems?
+
+- Practical ML improvement usually follows a staged and diagnostic-driven process rather than immediately switching to more complex models
+
+- A common workflow is:
+  - understand business objectives
+  - analyze model errors and failure patterns
+  - adjust thresholds and operating policies
+  - improve data quality and feature engineering
+  - improve calibration if probabilities are unreliable
+  - increase model complexity only if simpler approaches remain insufficient
+
+- Earlier improvement steps are often preferred because they:
+  - are cheaper
+  - are easier to interpret
+  - reduce deployment complexity
+  - may already solve the main problem
+
+- For example:
+  - threshold tuning may significantly improve business outcomes without retraining the model
+  - while better features may improve performance more than switching to a more complex algorithm
+
+- Therefore, practical ML systems are usually improved through:
+  - iterative diagnosis
+  - targeted improvements
+  - business-driven optimization
+
+  rather than blindly maximizing model complexity
+
+---
+
+### Q38. Why is a successful machine learning system more than just a high-performing model?
+
+- A strong predictive model alone does not guarantee a successful real-world ML system
+
+- Practical ML systems also depend on:
+  - threshold selection
+  - calibration quality
+  - business objectives
+  - deployment constraints
+  - monitoring and reliability
+  - human decision workflows
+
+- For example:
+  - a model with strong ROC-AUC may still fail operationally if:
+    - Precision is too low
+    - probabilities are unreliable
+    - or alert volume becomes unmanageable
+
+- Similarly:
+  - a simpler interpretable model may sometimes be preferred over a slightly more accurate complex model because it is easier to:
+    - trust
+    - debug
+    - deploy
+    - monitor
+
+- Successful ML systems therefore require balancing:
+  - statistical performance
+  - operational usability
+  - business value
+  - reliability
+  - maintainability
+
+- This is an important practical ML insight because real-world ML success depends on the entire decision system, not only the predictive algorithm itself
+
+---
