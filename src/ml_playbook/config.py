@@ -10,3 +10,6 @@ DATA_DIR = BASE_DIR / "data"
 
 # Model paths
 MODEL_DIR = BASE_DIR / "models"
+
+# Global configuration
+RANDOM_STATE = 42
